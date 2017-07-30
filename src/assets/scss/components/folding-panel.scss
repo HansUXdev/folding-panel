@@ -1,0 +1,571 @@
+////
+/// @group folding-panel
+////
+
+// Add these classes if you using UNCSS...
+	// cd-fold-content
+	// overflow-hidden
+	// is-open
+	// fold-is-open
+	// is-open
+	// fold-is-open
+	// no-csstransitions
+	// overflow-hidden
+	// cd-item
+	// overflow-hidden
+	// cd-item
+	// cd-main
+
+
+/// folding-panel colors 
+$color-1: #363558; // Martinique
+$color-2: #544173; // Mulled Wine
+$color-3: #dadcdc; // Iron
+$color-4: #65d29b; // Emerald
+$color-5: #1c1726; // Bastille
+$color-6: #ffffff; // White
+
+/// folding-panel fonts 
+$primary-font: 'Open Sans', sans-serif;
+$secondary-font: 'Vollkorn', serif;
+
+/// animation duration
+$fold-animation: .5s;
+// replace 3 with number of elements that you want to animate
+$fold-content-animation: .2s*(3+1)/2; 
+
+
+
+// Class Names
+		$main:'folding-panel-container';
+		$gallery:'cd-gallery';
+
+		$item:'folding-panel-item';
+		/// panel height
+		$panel-item-height: 200px;
+
+		$panel:'cd-folding-panel';
+		$content:'cd-fold-content';
+		$close:'cd-close';
+		$transition:'no-csstransitions';
+		$overflow:'overflow-hidden';
+		$foldOpen:'fold-is-open';
+		$open:'is-open';
+
+// @import '../partials/mixins'; // custom mixins
+// center vertically and/or horizontally an absolute positioned element
+
+/// mixins
+	@mixin center($xy:xy) {
+	  @if $xy == xy {
+	    left: 50%;
+	    top: 50%;
+	    bottom: auto;
+	    right: auto;
+	    transform: translateY(-50%);
+	  }
+	  @else if $xy == x {
+	    left: 50%;
+	    right: auto;
+	    transform: translateX(-50%);
+	  }
+	  @else if $xy == y {
+	    top: 50%;
+	    bottom: auto;
+	    transform: translateY(-50%);
+	  }
+	}
+
+	// antialiasing mode font rendering
+	@mixin font-smoothing {
+	  -webkit-font-smoothing: antialiased;
+	  -moz-osx-font-smoothing: grayscale;
+	} 
+
+	// super light grid - it works with the .cd-container class 
+	@mixin column($percentage, $float-direction:left) {
+	  width: 100% * $percentage;
+	  float: $float-direction;
+	}
+
+
+
+
+/* -------------------------------- 
+Primary style
+-------------------------------- */
+
+// *, *::after, *::before {box-sizing: border-box;}
+// html {font-size: 62.5%;}
+
+// body {
+// 	font: {
+// 		size: 1.6rem;
+// 		family: $primary-font; // variables inside partials > _variables.scss
+// 	}
+// 	color: $color-1;
+// 	background-color: $color-5;
+// }
+
+// a { color: $color-2; text-decoration: none;}
+// h1, h2 {font-family: $secondary-font;}
+
+// on the click event, add this class to the body to prevent scorlling
+.overflow-hidden {overflow: hidden;}
+
+
+/* -------------------------------- 
+Main content
+-------------------------------- */
+
+.#{$main} {
+	overflow-x: hidden;
+	/* never visible - this is used in jQuery to check the current MQ */ 
+	&::before {
+		display: none;
+		content: 'mobile';
+		@include breakpoint(large up)  {
+			content: 'desktop'; 
+		}
+	} 
+	header {
+		height: 170px;
+		line-height: 170px;
+		text-align: center;
+		background: $color-6;
+
+		@include breakpoint(medium up) { 
+			height: 200px;
+			line-height: 200px;
+			h1 {font-size: 3rem;}
+		}
+
+		h1 {
+			font-size: 2.2rem;
+			color: $color-1;
+		}
+
+	}
+
+	> * {
+		transition: transform $fold-animation $fold-content-animation;
+	}
+	
+	/* on mobile - translate .cd-main content to the right when the .cd-folding-panel is open */
+	&.#{$foldOpen} > * {
+		transform: translateX(100%);
+		// check for -o and -moz
+		transition: transform $fold-animation 0s;
+		
+		@include breakpoint(medium up) { 
+			transform: translateX(600px); 
+		}
+		/* reset style - on bigger devices we translate the gallery items */
+		@include breakpoint(large up)  {
+			transform: translateX(0); 
+		}
+		.#{$item} {display: none;}
+	}
+}
+
+.#{$gallery} {
+	// &::after{	
+	// 	clear: both;
+	// 	content: "";
+	// 	display: table;
+	// }
+	// @include clearfix;
+
+	&::before {
+		/* this is the dark layer covering the .cd-gallery when the .cd-folding-panel is open */
+		display: block;
+		content: '';
+		position: absolute;
+		z-index: 1;
+		top: 0;
+		left: 0;
+		height: 100%;
+		width: 100%;
+		background-color: rgba($color-5, .6);
+		opacity: 0;
+		visibility: hidden;
+		transition: opacity $fold-animation $fold-content-animation, 
+					visibility 0s $fold-animation+$fold-content-animation;
+	}
+
+}
+
+.#{$foldOpen} .#{$gallery}::before {
+	visibility: visible;
+	opacity: 1;
+	transition: $fold-animation 0s, visibility 0s 0s;
+}
+
+.#{$item} {
+	width: 100%;
+	height: $panel-item-height;
+	text-align: center;
+	list-style:none;
+	/* Force Hardware Acceleration */
+	  transform: translateZ(0);
+	  backface-visibility: hidden;
+	  transition: transform $fold-animation $fold-content-animation;
+
+	@include breakpoint(medium up) {
+		@include column(.5);
+	}
+	@include breakpoint(large up) {
+		@include column(.25);
+		height: $panel-item-height+120;
+		transition: transform $fold-animation $fold-content-animation;
+	}
+
+	> a {
+		display: table;
+		height: 100%;
+		width: 100%;
+		overflow: hidden;
+		color: $color-6;
+		@include font-smoothing;
+
+		&.dark-text {
+			color: $color-1;
+
+			b {
+				border-color: $color-1;
+			}
+		}
+	}
+
+	div {
+		display: table-cell;
+		vertical-align: middle;
+	}
+
+	&:nth-of-type(1) {background-color: $color-1;}
+	&:nth-of-type(2) {background-color: $color-2;}
+	&:nth-of-type(3) {background-color: $color-3;}
+	&:nth-of-type(4) {background-color: $color-4;}
+
+	h2 {
+		font-size: 2.2rem;
+		@include breakpoint(large up) {
+			font-size: 3rem;
+		}
+	}
+
+	p {
+		line-height: 1.2;
+		font-size: 1.4rem;
+		opacity: 0.6;
+		padding: 1em 0;
+		@include breakpoint(large up) {
+			font-size: 1.6rem;
+		}
+	}
+
+	b {
+		display: inline-block;
+		font: {
+			size: 1.2rem;
+			weight: bold;
+		}
+		text-transform: uppercase; 
+		letter-spacing: 1px;
+		padding: 1em 1.3em;
+		border-radius: 50em;
+		border: 1px solid $color-6;
+		@include breakpoint(large up) {
+			opacity: 0;
+			transform: translateY(20px);
+			transition: opacity 0.3s 0s, transform 0.3s 0s;
+		}
+	}
+	@include breakpoint(large up) {
+		h2, p {
+			transform: translateY(30px);
+			transition: transform 0.3s 0.1s;
+		}
+		.no-touch & a:hover {
+
+			h2, p {
+			    transform: translateY(0);
+			    transition: transform 0.3s 0s;
+			}
+
+			b {
+				opacity: 1;
+			    transform: translateY(0);
+			    transition: opacity 0.3s 0.1s, transform 0.3s 0.1s;
+			}
+		}
+
+		.#{$foldOpen} & {
+			transition: transform $fold-animation 0s;
+			transform: translateX(-400px);
+
+			&:nth-of-type(2n) {transform: translateX(400px);}
+		}
+	}
+}
+
+/* -------------------------------- 
+
+folding panel
+
+-------------------------------- */
+
+.#{$panel} {
+	position: fixed;
+	z-index: 1;
+	top: 0;
+	left: 0;
+	height: 100vh;
+	width: 100%;
+	visibility: hidden;
+	overflow: hidden;
+	transition: visibility 0s $fold-animation+$fold-content-animation;
+
+	@include breakpoint(medium up) {width: 600px;}
+	@include breakpoint(large up) {
+		@include center(x);
+		width: 800px;
+	}
+
+	.fold-left,
+	.fold-right {
+		/* the :after elements of .fold-left and .fold-right are the 2 fold sides */
+		width: 100%;
+		height: 100vh;
+		overflow: hidden;
+		position: relative;
+
+		/* enable a 3D-space for children elements */
+		perspective: 2000px;
+		
+		// On large and up, float left and split 50%
+		@include breakpoint(large up) {
+			@include column(.5);
+			height: 100%;
+		}
+
+		&::after {
+			/* 2 fold sides */
+			content: '';
+			position: absolute;
+			top: 0;
+			left: 0;
+			height: 100%;
+			width: 100%;
+
+			/* Force Hardware Acceleration */
+			transform: translateZ(0);
+			backface-visibility: hidden;
+			transition: transform $fold-animation $fold-content-animation, 
+						background-color $fold-animation $fold-content-animation;
+		}
+	}
+	
+	/* on LG, change perspective-origin so that the 2 fold sides have the same vanishing point */
+	.fold-right {
+		perspective-origin: 0% 50%;
+
+		@include breakpoint(large up) {
+			perspective-origin: 0% 50%;
+		}
+
+		&::after {
+			transform-origin: right center;
+			transform: translateX(-100%) rotateY(-90deg);
+			background-color: darken($color-3, 10%);
+
+			@include breakpoint(large up) {
+				transform-origin: right center;
+				transform: translateX(-100%) rotateY(-90deg);
+			}
+
+		}
+	}
+
+	/* on LG, change perspective-origin so that the 2 fold sides have the same vanishing point */
+	.fold-left {
+		/* on mobile only the right fold side is visible */
+		display: none;
+		@include breakpoint(large up) {
+			display: block;
+			perspective-origin: 100% 50%;
+		}
+		&::after {
+			background-color: lighten($color-3, 12%);
+			@include breakpoint(large up) {
+				transform-origin: left center;
+				transform: translateX(100%) rotateY(90deg);
+			}
+		}
+	}
+
+	.#{$close} {
+		/* 'X' close icon */
+		position: absolute;
+		z-index: 1;
+		display: inline-block;
+		top: 10px;
+		right: 10px;
+		height: 44px;
+		width: 44px;
+
+		/* image replacement */
+		overflow: hidden;
+		text-indent: 100%;
+		white-space: nowrap;
+
+		opacity: 0;
+		transition: opacity 0.2s 0s;
+
+		&::after, 
+		&::before {
+			/* lines of 'X' icon */
+			content: '';
+			position: absolute;
+			height: 3px;
+			width: 32px;
+			left: 50%;
+	    	top: 50%;
+			background-color: $color-2;	
+			backface-visibility: hidden;
+			transition: opacity 0.2s;
+		}
+
+		&::after {
+			transform: translateX(-50%) translateY(-50%) rotate(45deg);
+		}
+
+		&::before {
+			transform: translateX(-50%) translateY(-50%) rotate(-45deg);
+		}
+	}
+	
+	&.is-open {
+		visibility: visible;
+		transition: visibility 0s 0s;
+
+		.fold-right::after,
+		.fold-left::after {
+			transform: translateX(0);
+			transition: transform $fold-animation 0s, background-color $fold-animation 0s;
+		}
+
+		.fold-right::after {
+			background-color: lighten($color-3, 12%);
+		}
+
+		.#{$close} {
+			opacity: 1;
+			transition: opacity .2s $fold-animation;
+		}
+	}
+}
+
+.#{$content} {
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 100%;
+	width: 100%;
+	padding: 4em 2em;
+	visibility: hidden;
+	transition: visibility 0s 0.4s;
+
+	@include breakpoint(large up) {
+		padding: 4em;
+	}
+
+	> * {
+		opacity: 0;
+		transform: translateY(20px);
+		@include breakpoint(large up) {
+			transform: translateY(40px);
+		}
+	}
+	
+	h2 {
+		font-size: 2.4rem;
+		transition: transform $fold-content-animation/2 $fold-content-animation/2, 
+					opacity $fold-content-animation/2 $fold-content-animation/2;
+		@include breakpoint(large up) {
+			font-size: 3.2rem;
+		}
+	}
+
+	p, em {
+		line-height: 1.6;
+	}
+
+	em {
+		display: inline-block;
+		margin: 1em 0;
+		font-family: $secondary-font;
+		font-size: 1.8rem;
+		color: lighten($color-1, 30%);
+		transition: transform $fold-content-animation/2 $fold-content-animation/4, 
+					opacity $fold-content-animation/2 $fold-content-animation/4;
+		@include breakpoint(large up) {
+			font-size: 2.2rem;
+		}
+	}
+
+	p {
+		margin-bottom: 1em;
+		transition: transform $fold-content-animation/2 0s, 
+					opacity $fold-content-animation/2 0s;
+		font-size: 1.4rem;
+		@include breakpoint(large up) {
+			font-size: 1.6rem;
+		}
+	}
+
+	.#{$open} & {
+		overflow-y: auto;
+		-webkit-overflow-scrolling: touch;
+		visibility: visible;
+		transition: visibility 0s $fold-animation;
+
+		> * {
+			opacity: 1;
+			transform: translateY(0);
+		}
+
+		h2 {
+			transition: transform $fold-content-animation/2 $fold-animation, 
+						opacity $fold-content-animation/2 $fold-animation;
+		}
+
+		em {
+			transition: transform $fold-content-animation/2 $fold-animation+$fold-content-animation/4, 
+			  			opacity $fold-content-animation/2 $fold-animation+$fold-content-animation/4
+		}
+
+		p {
+			transition: transform $fold-content-animation/2 $fold-animation+$fold-content-animation/2, 
+						opacity $fold-content-animation/2 $fold-animation+$fold-content-animation/2;
+		}
+	}
+}
+
+/* -------------------------------- 
+
+Javascript disabled
+
+-------------------------------- */
+
+.no-js .#{$content}.single-page {
+	position: static;
+	visibility: visible;
+	height: auto;
+	background-color: $color-3;
+
+	> * {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}

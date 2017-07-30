@@ -1,7 +1,37 @@
 jQuery(document).ready(function($){
+	// Selectors used to make the magic happen.
+
+
+	/*
+	var gallary = '.cd-gallery',
+		foldingPanel = '.cd-folding-panel',
+		mainContent = '.cd-main'
+		// .fold-is-open
+		// .cd-close
+		// .cd-fold-content 
+		is-open
+		fold-is-open
+		cd-item
+		//// classes
+			.cd-fold-content
+			overflow-hidden
+			is-open
+			fold-is-open
+			is-open
+			fold-is-open
+			.no-csstransitions
+			overflow-hidden
+			.cd-item
+			overflow-hidden
+			.cd-item
+			.cd-main
+	;
+	*/ 
+
 	var gallery = $('.cd-gallery'),
 		foldingPanel = $('.cd-folding-panel'),
 		mainContent = $('.cd-main');
+
 	/* open folding content */
 	gallery.on('click', 'a', function(event){
 		event.preventDefault();
@@ -27,7 +57,8 @@ jQuery(document).ready(function($){
 			}, 100, function(){ 
 	           	toggleContent(url, true);
 	        }); 
-	    } else if( gallery.offset().top + gallery.height() < $(window).scrollTop() + $(window).height()  && mq != 'mobile' ) {
+	    } 
+	    else if( gallery.offset().top + gallery.height() < $(window).scrollTop() + $(window).height()  && mq != 'mobile' ) {
 			/* if content is visible below the .cd-gallery - scroll before opening the folding panel */
 			$('body,html').animate({
 				'scrollTop': gallery.offset().top + gallery.height() - $(window).height()
@@ -71,6 +102,11 @@ jQuery(document).ready(function($){
 
 	function viewportSize() {
 		/* retrieve the content value of .cd-main::before to check the actua mq */
-		return window.getComputedStyle(document.querySelector('.cd-main'), '::before').getPropertyValue('content').replace(/"/g, "").replace(/'/g, "");
+		return window.getComputedStyle(
+			document.querySelector('.cd-main'), 
+			'::before')
+		.getPropertyValue('content')
+		.replace(/"/g, "")
+		.replace(/'/g, "");
 	}
 });
